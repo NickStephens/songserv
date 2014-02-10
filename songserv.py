@@ -7,7 +7,7 @@ from mpd import MPDClient
 import threading
 import time
 
-songchanged = False
+songchanged = True 
 
 def pad(string, length):
     return string + (" " * (length - len(string)))
@@ -33,6 +33,8 @@ def rottest():
         print pstr
         time.sleep(.5)
 
+def color(string, xcolor):
+    return "<fc=" + xcolor + ">" + string + "</fc>"
 
 def updateCurSong(filename, song):
     f = open(filename, "w")
@@ -60,6 +62,24 @@ def getSong(client, filename, lock, cv):
 
     while True:
 
+        # the player has changed
+        # we will always check for a new song
+        # but we will also check to see if 
+        # we are paused
+
+        client.status()
+        state = client.status()["state"]
+        statestr = ""
+
+        if state == "play":
+            statestr = "playing: "
+        elif state == "pause":
+            statestr = "paused: "
+        elif state == "stop": 
+            statestr = "mpd: <" + color("off", "red") + ">"
+        else:
+            statestr = "[!!]"
+
         tags = client.currentsong() 
 
         changeSong(False, lock)
@@ -74,32 +94,31 @@ def getSong(client, filename, lock, cv):
         if "title" in tags.keys():
             songstr += tags["title"]
 
+        cv.release() # otherwise we block clientLoop
         if (len(songstr) >= 50):
-            cv.notify_all()
-            cv.release() # otherwise we block clientLoop
             i = 0
             while not (songChange(lock)):
-                (newi, sliced) = rotate(i, songstr)
+                (i, sliced) = rotate(i, songstr)
                 sliced = pad(sliced, 50)
-                updateCurSong(filename, sliced)
+                print statestr + color(sliced, "#ffffff")
+                updateCurSong(filename, statestr + color(sliced, "#ffffff"))
                 time.sleep(1)
-                i = newi
         else:
-            cv.release()
             while not (songChange(lock)):
-                updateCurSong(filename, songstr)
+                print statestr + color(songstr, "#ffffff")
+                updateCurSong(filename, statestr + color(songstr, "#ffffff"))
                 #cv.wait() 
                 time.sleep(3)
 
 def clientLoop(client, lock, cv):
 
     while True: 
-        client.idle("player")
-        changeSong(True, lock)
         cv.acquire()
         cv.notify_all()
         while songChange(lock):
             cv.wait()
+        client.idle("player")
+        changeSong(True, lock)
         
 
 def init(host, port, songfile):
