@@ -76,7 +76,7 @@ def getSong(client, filename, lock, cv):
         elif state == "pause":
             statestr = "paused: "
         elif state == "stop": 
-            statestr = "mpd: <" + color("off", "red") + ">"
+            statestr = "mpd: <" + color("stopped", "red") + ">"
         else:
             statestr = "[!!]"
 
