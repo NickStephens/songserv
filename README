@@ -7,3 +7,5 @@ todo:
    * add install script
 
 
+add the following line to your xmobarrc to register it:
+    Run Com "/usr/bin/cat" ["/tmp/song.txt"] "songserv" 3
