@@ -1,0 +1,10 @@
+[Unit]
+Description=song status service for xmobar
+Requires=mpd.service
+After=mpd.service
+
+[Service]
+ExecStart=/usr/bin/python2 <location-of-songserv>
+
+[Install]
+WantedBy=multi-user.target
