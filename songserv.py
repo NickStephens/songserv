@@ -123,8 +123,16 @@ def clientLoop(client, lock, cv):
 
 def init(host, port, songfile):
 
-    client = MPDClient()
-    client.connect(host, port)
+    updateCurSong(songfile, "songserv: starting...")
+
+    while True:
+        try:
+            client = MPDClient()
+            client.connect(host, port)
+            break
+        except:
+            time.sleep(3)
+
 
     changelock = threading.Lock()
     cv = threading.Condition()
