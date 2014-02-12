@@ -1,0 +1,9 @@
+songserv
+
+This is a stupid server that constantly prints the name of the current song into a file for xmobar to read. Besides allowing xmobar to get the song stats more efficiently, it also allows song name rotation to occur. If a song name's length exceeds a certain threshold songserv will rotate the name of the song every three seconds. Additionally if songserv also cleanly handles different song formats (for example, not all mpd servers this author has encountered provide and artist tag, but instead include the artist name in the title)
+
+todo:
+   * add config parsing (colors, host, port, rotation-interval)
+   * add install script
+
+
